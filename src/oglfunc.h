@@ -10,13 +10,10 @@
 #if defined(USE_OPENGL_ES)
 #include "SDL_opengles2.h"
 
-// OpenGL compatibility
-typedef GLclampf GLclampd;
-typedef GLfloat GLdouble;
-
 #else
 #include "SDL_opengl.h"
 #endif
+
 
 #if !defined(GL_CLAMP_TO_EDGE)
 // Originally added by GL_SGIS_texture_edge_clamp; part of OpenGL 1.2 core.

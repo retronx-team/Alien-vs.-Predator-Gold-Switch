@@ -74,6 +74,7 @@ SET(SDL2_SEARCH_PATHS
   /opt/local # DarwinPorts
   /opt/csw # Blastwave
   /opt
+  /opt/devkitpro/portlibs/switch
 )
 
 FIND_PATH(SDL2_INCLUDE_DIR

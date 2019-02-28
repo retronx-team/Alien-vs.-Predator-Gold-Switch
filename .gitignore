@@ -1,0 +1,6 @@
+*.obj
+*.d
+CMakeFiles/
+*.nro
+*.7z
+CMakeCache.txt

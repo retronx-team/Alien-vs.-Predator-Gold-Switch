@@ -41,6 +41,10 @@ IF(AVP_WEB)
     ENDIF()
 ENDIF(AVP_WEB)
 
+SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+SET(BUILD_SHARED_LIBS OFF)
+SET(CMAKE_EXE_LINKER_FLAGS "-static")
+
 # required dependencies
 IF(NOT AVP_WEB)
     INCLUDE(FindOpenGLES2.cmake)
@@ -48,7 +52,6 @@ IF(NOT AVP_WEB)
     INCLUDE(FindLibAV.cmake)
     INCLUDE(FindSDL)
     INCLUDE(FindOpenGL)
-    INCLUDE(FindOpenAL)
 
     # Use SDL 1.2 if it is installed, else use SDL 2.0.
     IF(NOT SDL_TYPE)
@@ -145,11 +148,6 @@ IF(NOT AVP_WEB)
             MESSAGE(FATAL_ERROR "OpenGL ES 2.0 support requires SDL2.")
         ENDIF(NOT SDL_TYPE STREQUAL "SDL2")
     ENDIF(OPENGL_TYPE STREQUAL "OPENGLES2")
-
-    # OpenAL
-    IF(NOT OPENAL_FOUND)
-        MESSAGE(FATAL_ERROR "OpenAL is required but CMake couldn't find it.")
-    ENDIF(NOT OPENAL_FOUND)
 ENDIF(NOT AVP_WEB)
 
 # required source files
@@ -372,6 +370,7 @@ LIST(APPEND source src/fmv.c)
 LIST(APPEND source src/openal.c)
 LIST(APPEND source src/cdplayer.c)
 LIST(APPEND source src/menus.c)
+LIST(APPEND source src/nxlink.c)
 
 IF(WIN32)
   LIST(APPEND source src/winfiles.c)
@@ -381,7 +380,7 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 IF(AVP_WEB)
-   LIST(APPEND source src/main2.c)
+   LIST(APPEND source src/main.c)
 ENDIF(AVP_WEB)
 
 IF(NOT AVP_WEB)
@@ -395,7 +394,7 @@ IF(NOT AVP_WEB)
     ENDIF(SDL_TYPE STREQUAL "SDL")
 
     IF(SDL_TYPE STREQUAL "SDL2")
-        LIST(APPEND source src/main2.c)
+        LIST(APPEND source src/main.c)
     ENDIF(SDL_TYPE STREQUAL "SDL2")
 ENDIF(NOT AVP_WEB)
 
@@ -445,30 +444,29 @@ IF(NOT AVP_WEB)
         INCLUDE_DIRECTORIES(${EGL_INCLUDE_DIR})
     ENDIF(OPENGL_TYPE STREQUAL "OPENGLES2")
 
-    INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
+    INCLUDE_DIRECTORIES(../openal-soft/include)
 
     IF(SDL_TYPE STREQUAL "SDL")
-        TARGET_LINK_LIBRARIES(avp ${SDL_LIBRARY})
+        TARGET_LINK_LIBRARIES(avp -static ${SDL_LIBRARY})
     ENDIF(SDL_TYPE STREQUAL "SDL")
 
     IF(SDL_TYPE STREQUAL "SDL2")
-        TARGET_LINK_LIBRARIES(avp ${SDL2_LIBRARY})
+        TARGET_LINK_LIBRARIES(avp -static ${SDL2_LIBRARY})
     ENDIF(SDL_TYPE STREQUAL "SDL2")
 
     IF(OPENGL_TYPE STREQUAL "OPENGL")
-        TARGET_LINK_LIBRARIES(avp ${OPENGL_gl_LIBRARY})
+        TARGET_LINK_LIBRARIES(avp -static ${OPENGL_gl_LIBRARY})
     ENDIF(OPENGL_TYPE STREQUAL "OPENGL")
 
     IF(OPENGL_TYPE STREQUAL "OPENGLES2")
-        TARGET_LINK_LIBRARIES(avp ${OPENGLES2_gl_LIBRARY})
-        TARGET_LINK_LIBRARIES(avp ${EGL_LIBRARIES})
+        TARGET_LINK_LIBRARIES(avp -static ${OPENGLES2_gl_LIBRARY})
+        TARGET_LINK_LIBRARIES(avp -static ${EGL_LIBRARIES})
     ENDIF(OPENGL_TYPE STREQUAL "OPENGLES2")
 
-    TARGET_LINK_LIBRARIES(avp ${OPENAL_LIBRARY})
-    TARGET_LINK_LIBRARIES(avp ${LIBAV_LIBRARIES})
-    TARGET_LINK_LIBRARIES(avp ${SWSCALE_LIBRARIES})
-    TARGET_LINK_LIBRARIES(avp ${AVCODEC_LIBRARIES})
-
-
+    TARGET_LINK_LIBRARIES(avp -static -L../openal-soft/lib -lopenal-soft)
+    TARGET_LINK_LIBRARIES(avp -static ${LIBAV_LIBRARIES})
+    TARGET_LINK_LIBRARIES(avp -static ${SWSCALE_LIBRARIES})
+    TARGET_LINK_LIBRARIES(avp -static ${AVCODEC_LIBRARIES})
+    TARGET_LINK_LIBRARIES(avp -static -specs=${DEVKITPRO}/libnx/switch.specs -L${DEVKITPRO}/portlibs/switch/lib -lSDL2 -march=armv8-a -fPIE -L${DEVKITPRO}/libnx/lib -lEGL -lglapi -ldrm_nouveau -lnx -lm -lz -lbz2)
 
 ENDIF(NOT AVP_WEB)

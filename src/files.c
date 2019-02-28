@@ -19,6 +19,304 @@
 static char *local_dir;
 static char *global_dir;
 
+/* Taken from glibc */
+char *realpath(const char *name, char *resolved)
+{
+   char *rpath, *dest, *extra_buf = NULL;
+   const char *start, *end, *rpath_limit;
+   long int path_max;
+   int num_links = 0;
+
+   if (name == NULL)
+   {
+      /* As per Single Unix Specification V2 we must return an error if
+       either parameter is a null pointer.  We extend this to allow
+       the RESOLVED parameter to be NULL in case the we are expected to
+       allocate the room for the return value.  */
+      return NULL;
+   }
+
+   if (name[0] == '\0')
+   {
+      /* As per Single Unix Specification V2 we must return an error if
+       the name argument points to an empty string.  */
+      return NULL;
+   }
+
+#ifdef PATH_MAX
+   path_max = PATH_MAX;
+#else
+   path_max = pathconf(name, _PC_PATH_MAX);
+   if (path_max <= 0)
+      path_max = 1024;
+#endif
+
+   if (resolved == NULL)
+   {
+      rpath = malloc(path_max);
+      if (rpath == NULL)
+         return NULL;
+   }
+   else
+      rpath = resolved;
+   rpath_limit = rpath + path_max;
+
+   if (name[0] != '/')
+   {
+      if (!getcwd(rpath, path_max))
+      {
+         rpath[0] = '\0';
+         goto error;
+      }
+      dest = memchr(rpath, '\0', path_max);
+   }
+   else
+   {
+      rpath[0] = '/';
+      dest = rpath + 1;
+   }
+
+   for (start = end = name; *start; start = end)
+   {
+      int n;
+
+      /* Skip sequence of multiple path-separators.  */
+      while (*start == '/')
+         ++start;
+
+      /* Find end of path component.  */
+      for (end = start; *end && *end != '/'; ++end)
+         /* Nothing.  */;
+
+      if (end - start == 0)
+         break;
+      else if (end - start == 1 && start[0] == '.')
+         /* nothing */;
+      else if (end - start == 2 && start[0] == '.' && start[1] == '.')
+      {
+         /* Back up to previous component, ignore if at root already.  */
+         if (dest > rpath + 1)
+            while ((--dest)[-1] != '/')
+               ;
+      }
+      else
+      {
+         size_t new_size;
+
+         if (dest[-1] != '/')
+            *dest++ = '/';
+
+         if (dest + (end - start) >= rpath_limit)
+         {
+            ptrdiff_t dest_offset = dest - rpath;
+            char *new_rpath;
+
+            if (resolved)
+            {
+               if (dest > rpath + 1)
+                  dest--;
+               *dest = '\0';
+               goto error;
+            }
+            new_size = rpath_limit - rpath;
+            if (end - start + 1 > path_max)
+               new_size += end - start + 1;
+            else
+               new_size += path_max;
+            new_rpath = (char *)realloc(rpath, new_size);
+            if (new_rpath == NULL)
+               goto error;
+            rpath = new_rpath;
+            rpath_limit = rpath + new_size;
+
+            dest = rpath + dest_offset;
+         }
+
+         dest = memcpy(dest, start, end - start);
+         *dest = '\0';
+      }
+   }
+   if (dest > rpath + 1 && dest[-1] == '/')
+      --dest;
+   *dest = '\0';
+
+   return rpath;
+
+error:
+   if (resolved == NULL)
+      free(rpath);
+   return NULL;
+}
+
+#undef	FNM_PATHNAME
+#undef	FNM_NOESCAPE
+#undef	FNM_PERIOD
+/* Bits set in the FLAGS argument to `fnmatch'.  */
+#define	FNM_PATHNAME	(1 << 0) /* No wildcard can ever match `/'.  */
+#define	FNM_NOESCAPE	(1 << 1) /* Backslashes don't quote special chars.  */
+#define	FNM_PERIOD	(1 << 2) /* Leading `.' is matched only explicitly.  */
+
+#define	FNM_FILE_NAME	FNM_PATHNAME /* Preferred GNU name.  */
+#define	FNM_LEADING_DIR	(1 << 3) /* Ignore `/...' after a match.  */
+#define	FNM_CASEFOLD	(1 << 4) /* Compare without regard to case.  */
+
+/* Value returned by `fnmatch' if STRING does not match PATTERN.  */
+#define	FNM_NOMATCH	1
+#define TOLOWER(x) ((x - 'A') + 'a')
+
+int
+fnmatch (const char *pattern, const char *string, int flags)
+{
+  register const char *p = pattern, *n = string;
+  register unsigned char c;
+
+#define FOLD(c)	((flags & FNM_CASEFOLD) ? TOLOWER (c) : (c))
+
+  while ((c = *p++) != '\0')
+    {
+      c = FOLD (c);
+
+      switch (c)
+	{
+	case '?':
+	  if (*n == '\0')
+	    return FNM_NOMATCH;
+	  else if ((flags & FNM_FILE_NAME) && *n == '/')
+	    return FNM_NOMATCH;
+	  else if ((flags & FNM_PERIOD) && *n == '.' &&
+		   (n == string || ((flags & FNM_FILE_NAME) && n[-1] == '/')))
+	    return FNM_NOMATCH;
+	  break;
+
+	case '\\':
+	  if (!(flags & FNM_NOESCAPE))
+	    {
+	      c = *p++;
+	      c = FOLD (c);
+	    }
+	  if (FOLD ((unsigned char)*n) != c)
+	    return FNM_NOMATCH;
+	  break;
+
+	case '*':
+	  if ((flags & FNM_PERIOD) && *n == '.' &&
+	      (n == string || ((flags & FNM_FILE_NAME) && n[-1] == '/')))
+	    return FNM_NOMATCH;
+
+	  for (c = *p++; c == '?' || c == '*'; c = *p++, ++n)
+	    if (((flags & FNM_FILE_NAME) && *n == '/') ||
+		(c == '?' && *n == '\0'))
+	      return FNM_NOMATCH;
+
+	  if (c == '\0')
+	    return 0;
+
+	  {
+	    unsigned char c1 = (!(flags & FNM_NOESCAPE) && c == '\\') ? *p : c;
+	    c1 = FOLD (c1);
+	    for (--p; *n != '\0'; ++n)
+	      if ((c == '[' || FOLD ((unsigned char)*n) == c1) &&
+		  fnmatch (p, n, flags & ~FNM_PERIOD) == 0)
+		return 0;
+	    return FNM_NOMATCH;
+	  }
+
+	case '[':
+	  {
+	    /* Nonzero if the sense of the character class is inverted.  */
+	    register int negate;
+
+	    if (*n == '\0')
+	      return FNM_NOMATCH;
+
+	    if ((flags & FNM_PERIOD) && *n == '.' &&
+		(n == string || ((flags & FNM_FILE_NAME) && n[-1] == '/')))
+	      return FNM_NOMATCH;
+
+	    negate = (*p == '!' || *p == '^');
+	    if (negate)
+	      ++p;
+
+	    c = *p++;
+	    for (;;)
+	      {
+		register unsigned char cstart = c, cend = c;
+
+		if (!(flags & FNM_NOESCAPE) && c == '\\')
+		  cstart = cend = *p++;
+
+		cstart = cend = FOLD (cstart);
+
+		if (c == '\0')
+		  /* [ (unterminated) loses.  */
+		  return FNM_NOMATCH;
+
+		c = *p++;
+		c = FOLD (c);
+
+		if ((flags & FNM_FILE_NAME) && c == '/')
+		  /* [/] can never match.  */
+		  return FNM_NOMATCH;
+
+		if (c == '-' && *p != ']')
+		  {
+		    cend = *p++;
+		    if (!(flags & FNM_NOESCAPE) && cend == '\\')
+		      cend = *p++;
+		    if (cend == '\0')
+		      return FNM_NOMATCH;
+		    cend = FOLD (cend);
+
+		    c = *p++;
+		  }
+
+		if (FOLD ((unsigned char)*n) >= cstart
+		    && FOLD ((unsigned char)*n) <= cend)
+		  goto matched;
+
+		if (c == ']')
+		  break;
+	      }
+	    if (!negate)
+	      return FNM_NOMATCH;
+	    break;
+
+	  matched:;
+	    /* Skip the rest of the [...] that already matched.  */
+	    while (c != ']')
+	      {
+		if (c == '\0')
+		  /* [... (unterminated) loses.  */
+		  return FNM_NOMATCH;
+
+		c = *p++;
+		if (!(flags & FNM_NOESCAPE) && c == '\\')
+		  /* XXX 1003.2d11 is unclear if this is right.  */
+		  ++p;
+	      }
+	    if (negate)
+	      return FNM_NOMATCH;
+	  }
+	  break;
+
+	default:
+	  if (c != FOLD ((unsigned char)*n))
+	    return FNM_NOMATCH;
+	}
+
+      ++n;
+    }
+
+  if (*n == '\0')
+    return 0;
+
+  if ((flags & FNM_LEADING_DIR) && *n == '/')
+    /* The FNM_LEADING_DIR flag says that "foo*" matches "foobar/frobozz".  */
+    return 0;
+
+  return FNM_NOMATCH;
+}
+
 /*
 Sets the local and global directories used by the other functions.
 Local = ~/.dir, where config and user-installed files are kept.

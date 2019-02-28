@@ -192,6 +192,8 @@ typedef struct JOYINFOEX
 {
 	DWORD dwXpos;
 	DWORD dwYpos;
+	DWORD dw2Xpos;
+	DWORD dw2Ypos;
 	DWORD dwRpos;
 	DWORD dwUpos;
 	DWORD dwVpos;

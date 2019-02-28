@@ -1355,9 +1355,43 @@ void ReadPlayerGameInput(STRATEGYBLOCK* sbPtr)
 		extern JOYINFOEX JoystickData;
 		extern JOYCAPS JoystickCaps;
 		
-		
 		int yAxis = (32768-JoystickData.dwYpos)*2;
 		int xAxis = (JoystickData.dwXpos-32768)*2;
+		int y2Axis = 0;
+		int x2Axis = 0;
+
+		if(JoystickData.dw2Ypos || JoystickData.dw2Xpos){
+			y2Axis = (32768-JoystickData.dw2Ypos)*2;
+			x2Axis = (JoystickData.dw2Xpos-32768)*2;
+
+			if(y2Axis>JOYSTICK_DEAD_ZONE)
+			{
+				y2Axis = -y2Axis;
+				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_LookDown = 1;
+				playerStatusPtr->Mvt_AnaloguePitching = 1;
+				playerStatusPtr->Mvt_PitchIncrement = y2Axis;
+			}
+			else if(y2Axis<-JOYSTICK_DEAD_ZONE)
+			{
+				y2Axis = -y2Axis;
+				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_LookUp = 1;
+				playerStatusPtr->Mvt_AnaloguePitching = 1;
+				playerStatusPtr->Mvt_PitchIncrement = y2Axis;
+			}
+			
+			if(x2Axis>JOYSTICK_DEAD_ZONE)
+			{
+				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnLeft = 1;
+				playerStatusPtr->Mvt_AnalogueTurning = 1;
+				playerStatusPtr->Mvt_TurnIncrement = x2Axis;
+			}
+			else if(x2Axis<-JOYSTICK_DEAD_ZONE)
+			{
+				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnRight = 1;
+				playerStatusPtr->Mvt_AnalogueTurning = 1;
+				playerStatusPtr->Mvt_TurnIncrement = x2Axis;
+			}
+		}
 		
 		if(JoystickControlMethods.JoystickVAxisIsMovement)
 		{
@@ -1374,24 +1408,8 @@ void ReadPlayerGameInput(STRATEGYBLOCK* sbPtr)
 				playerStatusPtr->Mvt_MotionIncrement = yAxis;
 			}
 		}
-		else // looking up/down
-		{
-			if(!JoystickControlMethods.JoystickFlipVerticalAxis) yAxis=-yAxis;
 
-			if(yAxis>JOYSTICK_DEAD_ZONE)
-			{
-				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_LookDown = 1;
-				playerStatusPtr->Mvt_AnaloguePitching = 1;
-				playerStatusPtr->Mvt_PitchIncrement = yAxis;
-			}
-			else if(yAxis<-JOYSTICK_DEAD_ZONE)
-			{
-				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_LookUp = 1;
-				playerStatusPtr->Mvt_AnaloguePitching = 1;
-				playerStatusPtr->Mvt_PitchIncrement = yAxis;
-			}
-		}
-
+#if 0
 		if (JoystickControlMethods.JoystickHAxisIsTurning)
 		{
 			if(xAxis<-JOYSTICK_DEAD_ZONE)
@@ -1420,7 +1438,8 @@ void ReadPlayerGameInput(STRATEGYBLOCK* sbPtr)
 				playerStatusPtr->Mvt_SideStepIncrement = xAxis;
 			}
 		}
-		
+	#endif
+
 		/* check for rudder */
 		if ((JoystickCaps.wCaps & JOYCAPS_HASR) && JoystickControlMethods.JoystickRudderEnabled)
 		{

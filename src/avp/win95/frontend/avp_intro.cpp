@@ -14,7 +14,7 @@ extern "C"
 extern void DirectReadKeyboard(void);
 
 
-static int IntroHasAlreadyBeenPlayed = 1;
+static int IntroHasAlreadyBeenPlayed = 0;
 
 
 void Show_CopyrightInfo(void);
@@ -62,7 +62,7 @@ extern void PlayIntroSequence(void)
 	FlipBuffers();
 	ClearScreenToBlack();
 
-	//PlayBinkedFMV("FMVs/logos.bik");
+	PlayBinkedFMV("FMVs/logos.bik");
 	//PlayFMV("FMVs/rebellion.smk");
 
 	StartMenuMusic();
