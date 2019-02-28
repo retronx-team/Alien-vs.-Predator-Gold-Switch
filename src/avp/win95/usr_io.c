@@ -34,7 +34,7 @@ extern void AvP_TriggerInGameMenus(void);
 extern void Recall_Disc(void);
 extern void ShowMultiplayerScores(void);
 
-
+extern AVP_GAME_DESC AvP;
 extern int NormalFrameTime;
 
 FIXED_INPUT_CONFIGURATION FixedInputConfig =
@@ -1378,19 +1378,22 @@ void ReadPlayerGameInput(STRATEGYBLOCK* sbPtr)
 				playerStatusPtr->Mvt_AnaloguePitching = 1;
 				playerStatusPtr->Mvt_PitchIncrement = y2Axis;
 			}
-			
-			if(x2Axis>JOYSTICK_DEAD_ZONE)
-			{
-				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnLeft = 1;
-				playerStatusPtr->Mvt_AnalogueTurning = 1;
-				playerStatusPtr->Mvt_TurnIncrement = x2Axis;
-			}
-			else if(x2Axis<-JOYSTICK_DEAD_ZONE)
-			{
-				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnRight = 1;
-				playerStatusPtr->Mvt_AnalogueTurning = 1;
-				playerStatusPtr->Mvt_TurnIncrement = x2Axis;
-			}
+
+            if(AvP.PlayerType != I_Alien)
+            {
+                if(x2Axis>JOYSTICK_DEAD_ZONE)
+                {
+                    playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnLeft = 1;
+                    playerStatusPtr->Mvt_AnalogueTurning = 1;
+                    playerStatusPtr->Mvt_TurnIncrement = x2Axis;
+                }
+                else if(x2Axis<-JOYSTICK_DEAD_ZONE)
+                {
+                    playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnRight = 1;
+                    playerStatusPtr->Mvt_AnalogueTurning = 1;
+                    playerStatusPtr->Mvt_TurnIncrement = x2Axis;
+                }
+            }
 		}
 		
 		if(JoystickControlMethods.JoystickVAxisIsMovement)
@@ -1409,36 +1412,35 @@ void ReadPlayerGameInput(STRATEGYBLOCK* sbPtr)
 			}
 		}
 
-#if 0
-		if (JoystickControlMethods.JoystickHAxisIsTurning)
-		{
-			if(xAxis<-JOYSTICK_DEAD_ZONE)
-			{
-				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnLeft = 1;
-				playerStatusPtr->Mvt_AnalogueTurning = 1;
-				playerStatusPtr->Mvt_TurnIncrement = xAxis;
-			}
-			else if(xAxis>JOYSTICK_DEAD_ZONE)
-			{			  
-				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnRight = 1;
-				playerStatusPtr->Mvt_AnalogueTurning = 1;
-				playerStatusPtr->Mvt_TurnIncrement = xAxis;
-			}
-		}
-		else // strafing
-		{
-			if(xAxis<-JOYSTICK_DEAD_ZONE)
-			{
-				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_SideStepLeft = 1;
-				playerStatusPtr->Mvt_SideStepIncrement = xAxis;
-			}
-			else if(xAxis>JOYSTICK_DEAD_ZONE)
-			{			  
-				playerStatusPtr->Mvt_InputRequests.Flags.Rqst_SideStepRight = 1;
-				playerStatusPtr->Mvt_SideStepIncrement = xAxis;
-			}
-		}
-	#endif
+        if (AvP.PlayerType == I_Alien)
+        {
+            if(xAxis<-JOYSTICK_DEAD_ZONE)
+            {
+                playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnLeft = 1;
+                playerStatusPtr->Mvt_AnalogueTurning = 1;
+                playerStatusPtr->Mvt_TurnIncrement = xAxis;
+            }
+            else if(xAxis>JOYSTICK_DEAD_ZONE)
+            {			  
+                playerStatusPtr->Mvt_InputRequests.Flags.Rqst_TurnRight = 1;
+                playerStatusPtr->Mvt_AnalogueTurning = 1;
+                playerStatusPtr->Mvt_TurnIncrement = xAxis;
+            }
+        }
+        else // strafing
+        {
+            if(xAxis<-JOYSTICK_DEAD_ZONE)
+            {
+                playerStatusPtr->Mvt_InputRequests.Flags.Rqst_SideStepLeft = 1;
+                playerStatusPtr->Mvt_SideStepIncrement = xAxis;
+            }
+            else if(xAxis>JOYSTICK_DEAD_ZONE)
+            {			  
+                playerStatusPtr->Mvt_InputRequests.Flags.Rqst_SideStepRight = 1;
+                playerStatusPtr->Mvt_SideStepIncrement = xAxis;
+            }
+        }
+        
 
 		/* check for rudder */
 		if ((JoystickCaps.wCaps & JOYCAPS_HASR) && JoystickControlMethods.JoystickRudderEnabled)
