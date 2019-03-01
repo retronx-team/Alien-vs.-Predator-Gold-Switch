@@ -1557,7 +1557,7 @@ void InGameFlipBuffers()
 	pglBindFramebuffer(GL_FRAMEBUFFER, 0);
 	pglBindRenderbuffer(GL_RENDERBUFFER, 0);
 	pglViewport(0, 0, DrawableWidth, DrawableHeight);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	pglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	DrawFullscreenTexture(FramebufferTexture);
 
@@ -1570,7 +1570,7 @@ void InGameFlipBuffers()
 	pglBindFramebuffer(GL_FRAMEBUFFER, FramebufferObject);
 	pglBindRenderbuffer(GL_RENDERBUFFER, FramebufferDepthObject);
 	pglViewport(0, 0, FramebufferTextureWidth, FramebufferTextureHeight);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	pglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void FlipBuffers()

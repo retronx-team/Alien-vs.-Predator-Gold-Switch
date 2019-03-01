@@ -1,19 +1,16 @@
-Aliens vs Predator Linux  http://icculus.org/avp/
+Aliens vs Predator Switch  http://icculus.org/avp/
 ------------------------
-
 Table of Contents:
 0. About this version (NEW!)
 1. Introduction
 2. Current Status
-3. Compilation
-4. Installation
-5. Credits
+3. Installation
+4. Credits
 a. Change History
 b. Gold edition MD5s
 
 Part 0: About this version
 --------------------------
-
 This code is based on the last release from icculus (available here: https://icculus.org/avp/files/avp-20170505-a1.tar.gz).
 It has support for 1366x768 resolution and cutscenes. This last feature was merged from the morphos release
 (available here: http://aminet.net/package/game/shoot/avp.src-morphos).
@@ -22,7 +19,6 @@ The rest of this README remains unchanged.
 
 Part 1: Introduction
 --------------------
-
 This is an unofficial Linux and Mac OS X port of the Fox Interactive /
 Rebellion Developments game, Aliens Versus Predator Gold.
 
@@ -34,55 +30,33 @@ http://community.ioquake.org/c/avp
 
 Please see LICENSE for copyright and licensing information.
 
-
 Part 2: Current Status
 ----------------------
-
-As of this release, i686 and x86_64 builds have been tested on Mac OS X
-10.8, Ubuntu 14.04 LTS and Fedora 21.
-
 Previously missing features are still missing.  Multiplayer, movies, etc.
 
-
-Part 3: Compilation
--------------------
-
-CMake, SDL 1.2, OpenAL and OpenGL support are required.  SDL 2.0 support is
-also available but is experimental and incomplete at this time.
-
-An example of how to use CMake to build the game:
-$ tar xvzf <avp-source-code>.tar.gz
-$ cd <avp-source-code>
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
-
-If all goes well, an executable named "avp" will be built.
-
-
-Part 4: Installation
+Part 3: Installation
 --------------------
-
 All of the AvP game data, files and directories, need to be lowercase. 
 Either copy the avp executable to the game data directory or set the
 AVP_DATA environment variable to the game data directory.
 
 Local user settings are stored in ~/.avp.
 
-
-Part 5: Credits
+Part 4: Credits
 ---------------
-
 The original game is by Rebellion Developments.
 
 Tim Beckmann, various code cleanup fixes
 Chuck Mason, initial OpenAL implementation
 
+M4xw, Switch port
+
 For everything else, there's http://community.ioquake.org/c/avp
 
 Appendix A: Change History
 --------------------------
+20180301:
+Switch Port
 
 20150214:
 OpenGL ES 1.1 compatibility
@@ -93,10 +67,8 @@ CMake build system
 x86_64 support
 Beginnings of SDL2 support
 
- 
 Appendix B: Gold edition MD5s
 -----------------------------
-
 A proper install of the Gold edition should look similar to this:
 MD5 (avp_huds/alien.rif) = 4267d305ad3f18e6683f86b4eb755665
 MD5 (avp_huds/alien_hud.rif) = ff6b892af4665c81082e24a43903e987

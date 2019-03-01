@@ -4,3 +4,12 @@ CMakeFiles/
 *.nro
 *.7z
 CMakeCache.txt
+*.o
+*.map
+*.elf
+*.lst
+*.nacp
+*.nso
+*.pfs0
+.vscode/*
+main
