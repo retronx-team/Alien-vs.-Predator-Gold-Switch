@@ -1794,6 +1794,8 @@ int main(int argc, char *argv[])
 	LoadKeyConfiguration();
 	
 	SoundSys_Start();
+	//BinkSys_Init();
+
 	if (WantCDRom) CDDA_Start();
 	
 	InitTextStrings();
@@ -2039,6 +2041,8 @@ static int MainGame_Deinit(void) {
 	EndNPCs();
 	
 	ExitGame();
+
+	//BinkSys_Release();
 	
 	SoundSys_StopAll();
 	
