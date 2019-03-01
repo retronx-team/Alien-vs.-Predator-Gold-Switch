@@ -1484,13 +1484,13 @@ void CheckForWindowsMessages()
 			int xAxis = (xPos-32768)*2;
 			if(xAxis>JOYSTICK_DEAD_ZONE)
 			{
-				KeyboardInput[KEY_LEFT] = 1;
-				DebouncedKeyboardInput[KEY_LEFT] = 1;
+				KeyboardInput[KEY_RIGHT] = 1;
+				DebouncedKeyboardInput[KEY_RIGHT] = 1;
 			}	
 			else if(xAxis<-JOYSTICK_DEAD_ZONE)
 			{
-				KeyboardInput[KEY_RIGHT] = 1;
-				DebouncedKeyboardInput[KEY_RIGHT] = 1;
+				KeyboardInput[KEY_LEFT] = 1;
+				DebouncedKeyboardInput[KEY_LEFT] = 1;
 			}
 			else
 			{
