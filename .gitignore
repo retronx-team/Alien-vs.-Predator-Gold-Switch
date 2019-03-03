@@ -13,3 +13,6 @@ CMakeCache.txt
 *.pfs0
 .vscode/*
 main
+cmake_install.cmake
+.gitignore
+Makefile

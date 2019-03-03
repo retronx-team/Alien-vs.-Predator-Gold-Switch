@@ -39,7 +39,7 @@ EXEFS_SRC	:=	exefs_src
 #ROMFS	:=	romfs
 
 APP_TITLE := Alien vs. Predator Gold
-APP_VERSION := 0.0.2
+APP_VERSION := 0.0.3
 APP_AUTHOR := M4xw, (c) 1999-2000 Rebellion
 
 #---------------------------------------------------------------------------------
