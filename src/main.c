@@ -1451,7 +1451,7 @@ void CheckForWindowsMessages()
 
 		if(main_loop_state != 5 || InGameMenusAreRunning()) { /* Not Ingame */
 			#ifndef JOYSTICK_DEAD_ZONE
-			#define JOYSTICK_DEAD_ZONE 12000
+			#define JOYSTICK_DEAD_ZONE 6000
 			#endif
 			int axes = SDL_JoystickNumAxes(joy);
 			int xPos = 0, yPos = 0;

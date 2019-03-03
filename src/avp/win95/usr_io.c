@@ -1351,7 +1351,7 @@ void ReadPlayerGameInput(STRATEGYBLOCK* sbPtr)
 	/* KJL 18:27:34 04/29/97 - joystick control */
 	if (GotJoystick)
 	{
-		#define JOYSTICK_DEAD_ZONE 12000
+		#define JOYSTICK_DEAD_ZONE 6000
 		extern JOYINFOEX JoystickData;
 		extern JOYCAPS JoystickCaps;
 		
